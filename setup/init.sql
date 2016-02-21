@@ -1,5 +1,5 @@
-create database if not exists pp;
-use pp;
+create database if not exists shift;
+use shift;
 
 create table calevent (
 modified timestamp,
@@ -50,7 +50,8 @@ eventstatus varchar(1),
 exceptionid int,
 headcount int,
 newbiecount int,
-ridereport text
+ridereport text,
+dailyid int primary key auto_increment
 );
 
 create table calforum (

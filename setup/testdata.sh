@@ -44,11 +44,13 @@
 #  `highlight` int(1) (0) [possible values [01] 1 is yes]
 #  `external` varchar(255) (NULL)
 #
-EVENTSTRING="('2015-10-04 21:28:00',NULL,'example name','email@addr.es','I',0,1,1,'123-123-1234',1,1,'http://example.com','name of a website',0,'use the bat signal',0,0,'TITLE','TINYTITLE','G','DESCRIPTION','PRINTDESCRIPTION','',0,0,'FORMATTED_DATE','O','TIME',120,'TIMEDETAILS','LOCATION_NAME','LOCATION_ADDRESS','X','LOCATION_DETAILS','P',0,NULL)"
+EVENTSTRING="INSERT INTO \`calevent\` VALUES ('2015-10-04 21:28:00',NULL,'example name','email@addr.es','I',0,1,1,'123-123-1234',1,1,'http://example.com','name of a website',0,'use the bat signal',0,0,'TITLE','TINYTITLE','G','DESCRIPTION','PRINTDESCRIPTION','',0,0,'FORMATTED_DATE','O','TIME',120,'TIMEDETAILS','LOCATION_NAME','LOCATION_ADDRESS','X','LOCATION_DETAILS','P',0,NULL);\n"
+CALDAILYSTRING="INSERT INTO \`caldaily\` (id, eventdate) (SELECT id, 'EVENTDATE' FROM \`calevent\` WHERE title='TITLE');\n"
 
 # get today's date in proper format, extrapolate yesterday/tomorrow
 YEAR=`date +%Y`
 MONTH=`date +%B`
+MONTHNUM=`date +%m`
 DAY=`date +%d`
 DATE=`expr $DAY`
 YESTERDATE=`expr $DAY - 1`
@@ -91,13 +93,10 @@ MORNINGTIME="08:00:00"
 NOONTIME="12:00:00"
 EVENINGTIME="20:00:00"
 
-# setup
-touch sample_data.mysql
-
 # TODO handle development on days near the beginning of the month
 if [ "$DAY" -lt 2 ] ; then
 	# but what if we're in January?
-	if [ "$MONTH" -eq 1 ] ; then
+	if [ "$MONTHNUM" -eq 1 ] ; then
 	echo
 	fi
 	
@@ -105,21 +104,20 @@ fi
 # TODO handle development on days near the end of the month
 if [ "$DAY" -gt 24 ] ; then
 	# but what if we're in December?
-	if [ "$MONTH" -eq 12 ] ; then
+	if [ "$MONTHNUM" -eq 12 ] ; then
 	echo
 	fi
 fi
 
 # 3 events yesterday, today, and tomorrow
-
-echo -n "INSERT INTO \`calevent\` VALUES " > /tmp/testdata
+echo -n " " > /tmp/testdata
 for j in $MORNINGTIME $NOONTIME $EVENINGTIME ; do
 # 3x for YESTERDAY, TODAY, TOMORROW
-	echo -n $EVENTSTRING | sed s/TITLE/"single event on $YESTERDAY at $j"/ | sed "s/FORMATTED_DATE/${YESTERDAY}, $MONTH ${YESTERDATE}/" | sed "s/TIME/${j}/" | tr "\n" ","
-	echo -n $EVENTSTRING | sed s/TITLE/"single event on $TODAY at $j"/ | sed "s/FORMATTED_DATE/${TODAY}, $MONTH ${DATE}/"| sed "s/TIME/${j}/" | tr "\n" ","
-	echo -n $EVENTSTRING | sed s/TITLE/"single event on $YESTERDAY at $j"/ | sed "s/FORMATTED_DATE/${TOMORROW}, $MONTH ${TOMORROWDATE}/"| sed "s/TIME/${j}/" | tr "\n" ","
+	echo -n $EVENTSTRING | sed s/TITLE/"single event on $YESTERDAY at $j"/ | sed "s/FORMATTED_DATE/${YESTERDAY}, $MONTH ${YESTERDATE}/" | sed "s/TIME/${j}/"
+	echo -n $CALDAILYSTRING | sed s/TITLE/"single event on $YESTERDAY at $j"/ | sed s/EVENTDATE/$YEAR-$MONTHNUM-$YESTERDATE/
+	echo -n $EVENTSTRING | sed s/TITLE/"single event on $TODAY at $j"/ | sed "s/FORMATTED_DATE/${TODAY}, $MONTH ${DATE}/"| sed "s/TIME/${j}/"
+	echo -n $CALDAILYSTRING | sed s/TITLE/"single event on $TODAY at $j"/  | sed s/EVENTDATE/$YEAR-$MONTHNUM-$DATE/
+	echo -n $EVENTSTRING | sed s/TITLE/"single event on $TOMORROW at $j"/ | sed "s/FORMATTED_DATE/${TOMORROW}, $MONTH ${TOMORROWDATE}/"| sed "s/TIME/${j}/"
+	echo -n $CALDAILYSTRING | sed s/TITLE/"single event on $TOMORROW at $j"/  | sed s/EVENTDATE/$YEAR-$MONTHNUM-$TOMORROWDATE/
 done >> /tmp/testdata
-cat /tmp/testdata | sed s/,$// > /tmp/testdata.n
-rm -f /tmp/testdata
-echo \; >> /tmp/testdata.n
-cat /tmp/testdata.n
+cat /tmp/testdata
