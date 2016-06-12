@@ -71,8 +71,7 @@ $(document).ready( function() {
         $.ajax(opts);
     }
 
-    function viewEvents(){
-        location.hash = 'viewEvents';
+    function viewEvents(hash){
         var startDate = new Date(); 
         var endDate = new Date(startDate);
         endDate.setDate(startDate.getDate() + 9);
@@ -82,6 +81,14 @@ $(document).ready( function() {
 
         getEventHTML(startDate, endDate, function (eventHTML) {
              container.append(eventHTML);
+
+             var $selected = $(hash);
+             if ($selected.length > 0) {
+                 $selected[0].scrollIntoView(true);
+                 $($selected[0]).click(); // simulate click to expand event
+             } else {
+                 location.hash = 'viewEvents';
+             }
              container.append($('#load-more-template').html());
              $(document).off('click', '#load-more')
                   .on('click', '#load-more', function(e) {
@@ -190,8 +197,7 @@ $(document).ready( function() {
         var locationHashParts = location.hash.split('/');
         viewAddEventForm(locationHashParts[1], locationHashParts[2]);
     } else {
-        
-        viewEvents();
+        viewEvents(location.hash);
     }
     // Set up email error detection and correction
     $(document).on( 'blur', '#email', function () {
