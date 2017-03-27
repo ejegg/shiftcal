@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Vuejs experiment</title>
+<script src="https://vuejs.org/js/vue.js" ></script>
+<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+</head>
+<body>
+<div id="shiftcal">
+<p>
+<router-link to="/calendar-view">Show events</router-link>
+<router-link to="/add-event">Add event</router-link>
+</p>
+<router-view></router-view>
+</div>
+<script type="text/x-template" id="loader">
+<div class="loader">Loading...
+</div>
+</script>
+<script type="text/x-template" id="add-event">
+<form>
+Add a thing!<br/>
+Title: <input type="text" v-model="title"></input><br/>
+Description: <textarea v-model="description"></textarea><br/>
+</form>
+</script>
+<script type="text/x-template" id="calendar-view">
+<div class="calendar-view">
+<div class="date" v-for="date in dates">
+    <div class="secondaryHeader">{{date.displayDate}}</div>
+    <div class="event" v-for="event in date.events">
+        <div class="time col-xs-2">{{event.displayTime}}</div>
+        <div class="summary">
+            <h3>{{event.title}}</h3>
+        </div>
+	<router-link v-bind:to="'event/' + event.id">Permalink</router-link>
+    </div>
+</div>
+</div>
+</script>
+<script type="text/x-template" id="single-event">
+<div class="single-event">
+	This is event number {{id}}, with title "{{title}}" at {{displayTime}}.
+</div>
+</script>
+<script src="main.js"></script>
+</body>

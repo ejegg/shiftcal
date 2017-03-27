@@ -1,0 +1,10 @@
+AddDefaultCharset UTF-8
+RewriteEngine On
+RewriteBase   /shiftcal/www/vue/
+
+
+RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit/[0-9]|Twitterbot|Pinterest|Google.*snippet)
+RewriteRule ^event/([0-9]+)$ crawl.php?id=$1 [NC,END]
+
+RewriteRule ^(event/[0-9]+|add-event|calendar-view)$ index.html
+RewriteRule ^.*/([^/]+\.js)$ $1
